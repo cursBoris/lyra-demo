@@ -6,13 +6,38 @@ import ru.curs.lyra.BasicGridForm;
 import ru.curs.lyra.LyraFormField;
 import ru.curs.lyra.LyraFormProperties;
 import ru.curs.lyra.LyraNamedElementHolder;
+import ru.curs.lyra.annotations.FormField;
+import ru.curs.lyra.annotations.LyraForm;
 
-public class TestForm extends BasicGridForm {
+@LyraForm(gridWidth = 100, gridHeight = 10)
+public class TestForm extends BasicGridForm<OrderLineCursor> {
 
-    public TestForm(CallContext c){
+    //Constructor will be run only once: each form is a Spring's singleton Component
+    public TestForm(CallContext c) {
         super(c);
+        //First, we add to the form all the table's fields in the order they declared in SQL
         createAllBoundFields();
+
+        //Add a field to the form and then alter its caption
+        LyraFormField f = createField("field2");
+        f.setCaption("Unbound field caption");
+
+        //Add a field to a form with default attributes (inherited from CelestaDoc or chosen by default)
+        createField("field1");
     }
+
+    @Override
+    public OrderLineCursor _getCursor(CallContext callContext) {
+        //sorting and filtering can also be performed here
+        return new OrderLineCursor(callContext);
+    }
+
+    @FormField(caption = "Field Caption")
+    public String getField1(CallContext ctx) {
+        return "foo";
+    }
+
+
 
     @Override
     public int getGridHeight() {
@@ -24,10 +49,6 @@ public class TestForm extends BasicGridForm {
         return null;
     }
 
-    @Override
-    public BasicCursor _getCursor(CallContext callContext) {
-        return new OrderLineCursor(callContext);
-    }
 
     @Override
     public String _getId() {
